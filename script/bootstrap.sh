@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
-#apt-get update
-#apt-get install -y python-dev git
-#curl -s https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py | python
-#pip install Flask gunicorn 
-#pip install supervisor --pre
-
+apt-get update
+apt-get install -y python-dev git
+curl -s https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py | python
+pip install Flask gunicorn
+pip install supervisor --pre
 
 if [ ! -d pimai0oh ]; then
 	git clone https://github.com/nikitamarchenko/pimai0oh.git
@@ -22,4 +21,4 @@ if [ ! -f /etc/supervisord.conf ]; then
 fi
 cd - 
 
-supervisord
+supervisord -c /etc/supervisord.conf
