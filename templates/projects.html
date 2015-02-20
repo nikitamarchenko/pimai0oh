@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap 101 Template</title>
+
+    <!-- Bootstrap -->
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('static', filename='css/query.css') }}">
+
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="container">
+    {% if error %}
+
+        <div class="alert alert-danger" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign"
+                      aria-hidden="true"></span>
+            <span class="sr-only">Error:</span>
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Projects
+        </div>
+        <div class="panel-body">
+            <div role="tabpanel">
+
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                    {% for project in projects %}
+                        <li role="presentation"
+                            class="{{ project.get('active') }}">
+                            <a href="#home"
+                               aria-controls="{{ project.key }}"
+                               role="tab"
+                               data-toggle="tab"> <img
+                                    src="{{ project.avatarUrls['24x24'] }}"
+                                    alt="">{{ project.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    {% for project in projects %}
+                        <div role="tabpanel" class="tab-pane active"
+                             id="{{ project.key }}">
+                            <div class="panel-body">
+                                {{ project.description }}
+                                <a class="btn btn-default" href="{{ url_for('query', project_id=project.id) }}" role="button">Report</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /container -->
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+</body>
+</html>
