@@ -114,7 +114,7 @@ def report():
         if epic != 'No Epic':
             search.append('"epic link" = "{}"'.format(epic))
 
-        search = 'and'.join(search)
+        search = ' and '.join(search)
 
         fields = 'status,created,summary'
 
