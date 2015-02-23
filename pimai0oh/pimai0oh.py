@@ -106,9 +106,11 @@ def report():
         search = []
 
         if status:
+            status = ['"{0}"'.format(w) for w in status]
             search.append("status in ({})".format(','.join(status)))
 
         if priority:
+            priority = ['"{0}"'.format(w) for w in priority]
             search.append("priority in ({})".format(','.join(priority)))
 
         if epic != 'No Epic':
@@ -117,6 +119,8 @@ def report():
         search = ' and '.join(search)
 
         fields = 'status,created,summary'
+
+        print search
 
         jql = urlencode(OrderedDict(jql=search, fields=fields))
 
