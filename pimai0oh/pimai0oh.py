@@ -2,6 +2,9 @@ from flask import Flask
 from flask import render_template
 from flask import request, session, redirect, url_for, abort
 
+from pprint import pprint
+from urllib import urlencode
+from collections import OrderedDict
 import requests
 
 
@@ -87,6 +90,44 @@ def query(project_id):
                            epics=epics['issues'])
 
 
+@app.route('/report', methods=['POST'])
+def report():
+    if not session.get('logged_in'):
+        abort(401)
+
+    error = None
+    if request.method == 'POST':
+
+        status = request.form.getlist('status')
+        priority = request.form.getlist('priority')
+
+        epic = request.form.get('username', 'No Epic')
+
+        search = "status in ({}) and priority in ({})".\
+            format(','.join(status), ','.join(priority))
+
+        if epic != 'No Epic':
+            search += ' and "epic link" = "{}"'.format(epic)
+
+        fields = 'status,created,summary'
+
+        jql = urlencode(OrderedDict(jql=search, fields=fields))
+
+        url = '{}/rest/api/latest/search?{}'.format(JIRA_URL, jql)
+
+        response = requests.get(url, auth=session['jira_cred'])
+
+        isues = {}
+        if response.status_code == 200:
+            isues = response.json()
+        else:
+            error = 'Get Isuses error ({} {})'.format(response.status_code,
+                                                        response.reason)
+
+    return render_template('report.html',
+                           isues=isues.get('issues', []),
+                           error=error)
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
-
