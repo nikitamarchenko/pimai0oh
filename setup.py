@@ -23,5 +23,6 @@ setup(
     description='',
     install_requires=install_requires_setuptools,
     setup_requires=["setuptools_git >= 0.3", ],
-    include_package_data=True
+    include_package_data=True,
+    zip_safe=False,
 )
