@@ -101,13 +101,20 @@ def report():
         status = request.form.getlist('status')
         priority = request.form.getlist('priority')
 
-        epic = request.form.get('username', 'No Epic')
+        epic = request.form.get('epic', 'No Epic')
 
-        search = "status in ({}) and priority in ({})".\
-            format(','.join(status), ','.join(priority))
+        search = []
+
+        if status:
+            search.append("status in ({})".format(','.join(status)))
+
+        if priority:
+            search.append("priority in ({})".format(','.join(priority)))
 
         if epic != 'No Epic':
-            search += ' and "epic link" = "{}"'.format(epic)
+            search.append('"epic link" = "{}"'.format(epic))
+
+        search = 'and'.join(search)
 
         fields = 'status,created,summary'
 
