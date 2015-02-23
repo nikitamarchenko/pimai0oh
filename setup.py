@@ -14,7 +14,7 @@ for ir in install_requires_pip:
 
 setup(
     name='pimai0oh',
-    version='',
+    version='0.0.1',
     packages=find_packages(),
     url='',
     license='',

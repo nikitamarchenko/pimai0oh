@@ -68,11 +68,44 @@ Vagrant.configure(2) do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
-  # config.vm.provision "shell", inline: <<-SHELL
-  #   sudo apt-get update
-  #   sudo apt-get install -y apache2
-  # SHELL
 
-  config.vm.provision :shell, path: "bootstrap.sh"
+  # Base install
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    apt-get install -y python-dev git
+    curl -s https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py | python
+    pip install virtualenv
+  SHELL
+
+  config.vm.provision "shell", run: "always", inline: <<-SHELL
+    if [ ! -d pimai0oh ]; then
+        git clone https://github.com/nikitamarchenko/pimai0oh.git
+        cd pimai0oh
+    else
+        cd pimai0oh
+        git pull --rebase
+    fi
+
+    if [ ! -d /opt/pimai0oh ]; then
+        virtualenv /opt/pimai0oh
+    fi
+
+    source /opt/pimai0oh/bin/activate
+
+    python setup.py install
+    pip install supervisor --pre
+
+    cd -
+
+    if [ ! -f /etc/supervisord.conf ]; then
+        rm -f /etc/supervisord.conf
+	    cp /home/vagrant/pimai0oh/script/supervisord.conf /etc/supervisord.conf
+    fi
+
+    supervisord -c /etc/supervisord.conf
+    supervisorctl restart all
+  SHELL
+
+  #config.vm.provision :shell, inline: $script
 
 end
