@@ -1,3 +1,4 @@
 requests
 Flask
 gunicorn
+six==1.9.0
