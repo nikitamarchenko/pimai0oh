@@ -57,15 +57,15 @@ def projects():
     if response.status_code == 200:
         projects_list = response.json()
         projects_list[0]['active'] = 'active'
-        print projects
+        print projects_list
     else:
         error = 'Get Projects error ({} {})'.format(response.status_code, response.reason)
 
     return render_template('projects.html', error=error, projects=projects_list)
 
 
-@app.route('/query/<int:project_id>', methods=['GET', 'POST'])
-def query(project_id):
+@app.route('/query/<int:project_id>/<string:project_key>', methods=['GET', 'POST'])
+def query(project_id, project_key):
     if not session.get('logged_in'):
         abort(401)
 
@@ -81,17 +81,19 @@ def query(project_id):
     response = requests.get(url, auth=session['jira_cred'])
     epics = response.json()
 
-    #from pprint import pprint
-
-    #pprint(epics['issues'])
-
-    #"epic link" = AA-13
+    if session[QA_LEAD]:
+        url = '{}/rest/api/2/user/assignable/search?project={}'.format(JIRA_URL, project_key)
+        response = requests.get(url, auth=session['jira_cred'])
+        assignable_users = response.json()
+    else:
+        assignable_users = []
 
     return render_template('query.html',
                            project_id=project_id,
                            statuses=statuses,
                            prioritys=prioritys,
-                           epics=epics['issues'])
+                           epics=epics['issues'],
+                           assignable_users=assignable_users)
 
 
 @app.route('/report', methods=['POST'])
@@ -107,6 +109,9 @@ def report():
         epic = request.form.get('epic', 'No Epic')
         period_start = request.form.get('period-start')
         period_end = request.form.get('period-end')
+        assignee = request.form.get('assignee')
+        creator = request.form.get('creator')
+
 
         search = []
 
@@ -126,6 +131,12 @@ def report():
 
         if period_end:
             search.append('created <= "{}"'.format(period_end))
+
+        if assignee:
+            search.append('assignee = "{}"'.format(assignee))
+
+        if creator:
+            search.append('creator = "{}"'.format(creator))
 
         search = ' and '.join(search)
 

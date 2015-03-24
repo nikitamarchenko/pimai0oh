@@ -61,7 +61,7 @@
                              id="{{ project.key }}">
                             <div class="panel-body">
                                 {{ project.description }}
-                                <a class="btn btn-default" href="{{ url_for('query', project_id=project.id) }}" role="button">Report</a>
+                                <a class="btn btn-default" href="{{ url_for('query', project_id=project.id, project_key=project.key) }}" role="button">Report</a>
                             </div>
                         </div>
                     {% endfor %}
