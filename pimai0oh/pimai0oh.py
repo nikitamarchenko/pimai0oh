@@ -2,7 +2,6 @@ from flask import Flask
 from flask import render_template
 from flask import request, session, redirect, url_for, abort
 
-from pprint import pprint
 from urllib import urlencode
 from collections import OrderedDict
 import requests
@@ -64,8 +63,8 @@ def projects():
     return render_template('projects.html', error=error, projects=projects_list)
 
 
-@app.route('/query/<int:project_id>/<string:project_key>', methods=['GET', 'POST'])
-def query(project_id, project_key):
+@app.route('/query/<string:project_key>', methods=['GET', 'POST'])
+def query(project_key):
     if not session.get('logged_in'):
         abort(401)
 
@@ -77,7 +76,7 @@ def query(project_id, project_key):
     response = requests.get(url, auth=session['jira_cred'])
     prioritys = response.json()
 
-    url = '{}/rest/api/latest/search?jql=type=epic&fields=id'.format(JIRA_URL)
+    url = '{}/rest/api/latest/search?jql=type=epic&fields=id&project={}'.format(JIRA_URL, project_key)
     response = requests.get(url, auth=session['jira_cred'])
     epics = response.json()
 
@@ -89,7 +88,7 @@ def query(project_id, project_key):
         assignable_users = []
 
     return render_template('query.html',
-                           project_id=project_id,
+                           project_key=project_key,
                            statuses=statuses,
                            prioritys=prioritys,
                            epics=epics['issues'],
@@ -104,6 +103,7 @@ def report():
     error = None
     if request.method == 'POST':
 
+        project_key = request.form.get('project-key')
         status = request.form.getlist('status')
         priority = request.form.getlist('priority')
         epic = request.form.get('epic', 'No Epic')
@@ -111,7 +111,6 @@ def report():
         period_end = request.form.get('period-end')
         assignee = request.form.get('assignee')
         creator = request.form.get('creator')
-
 
         search = []
 
@@ -153,13 +152,21 @@ def report():
         isues = {}
         if response.status_code == 200:
             isues = response.json()
+            url = '{}/rest/api/latest/project/{}'.format(JIRA_URL, project_key)
+            response = requests.get(url, auth=session['jira_cred'])
+            project = response.json()
         else:
             error = 'Get Isuses error ({} {})'.format(response.status_code,
                                                         response.reason)
+            project = {}
 
     return render_template('report.html',
                            isues=isues.get('issues', []),
-                           error=error)
+                           project=project,
+                           error=error,
+                           form=request.form,
+                           status=request.form.getlist('status'),
+                           priority=request.form.getlist('priority'))
 
 
 if __name__ == '__main__':

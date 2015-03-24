@@ -37,11 +37,77 @@
             Report
         </div>
         <div class="panel-body">
+            <div class="col-sm-6" style="padding: 0">
+                <table class="table table-bordered">
+                    <tbody>
+                    <tr>
+                        <td>Project</td>
+                        <td>{{ project.name }}</td>
+                    </tr>
+
+                    {% if status %}
+                    <tr>
+                        <td>Status</td>
+                        <td>{{ status|join("; ") }}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if priority %}
+
+                    <tr>
+                        <td>Priority</td>
+                        <td>
+                        {{ priority|join("; ") }}
+                        </td>
+                    </tr>
+                    {% endif %}
+
+                    {% if form.epic and not form.epic == 'No Epic' %}
+                    <tr>
+                        <td>Epic</td>
+                        <td>{{ form.epic }}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if form['period-start'] %}
+                    <tr>
+                        <td>Period Start</td>
+                        <td>{{ form['period-start'] }}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if form['period-end'] %}
+                    <tr>
+                        <td>Period End</td>
+                        <td>{{ form['period-end'] }}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if form.assignee %}
+                    <tr>
+                        <td>Assignee</td>
+                        <td>{{ form.assignee }}</td>
+                    </tr>
+                    {% endif %}
+
+                    {% if form.creator %}
+                    <tr>
+                        <td>Creator</td>
+                        <td>{{ form.creator }}</td>
+                    </tr>
+                    {% endif %}
+
+                    </tbody>
+                </table>
+            </div>
             <table class="table table-bordered">
                 <thead>
                 <tr>
+                    <th colspan="3">Summary</th>
+                </tr>
+                <tr>
                     <th>ID</th>
-                    <th>Summary</th>
+                    <th>Description</th>
                     <th>Date Created</th>
                 </tr>
                 </thead>
