@@ -10,7 +10,7 @@ import requests
 
 app = Flask(__name__)
 app.secret_key = 'pimai0oh+secret_key'
-JIRA_URL = 'https://vetakoko.atlassian.net'
+JIRA_URL = 'https://koinakvioletta.atlassian.net'
 QA_LEAD = 'QA lead'
 
 
@@ -23,20 +23,24 @@ def login():
 
         url = '{}/rest/api/latest/myself?expand=groups'.format(JIRA_URL)
 
-        response = requests.get(url, auth=(username, password))
 
-        if response.status_code == 200:
-            session['logged_in'] = True
-            session['jira_cred'] = (username, password)
-            session[QA_LEAD] = False
-            result = response.json()
+        try:
+            response = requests.get(url, auth=(username, password))
+        except requests.exceptions.ConnectionError as ex:
+            error = 'Login failed ({}, {})'.format(ex.message.args[0], ex.message.args[1])
+        else:
+            if response.status_code == 200:
+                session['logged_in'] = True
+                session['jira_cred'] = (username, password)
+                session[QA_LEAD] = False
+                result = response.json()
 
-            session[QA_LEAD] = \
-                QA_LEAD in [i['name'] for i in result['groups']['items']]
+                session[QA_LEAD] = \
+                    QA_LEAD in [i['name'] for i in result['groups']['items']]
 
-            return redirect(url_for('projects'))
+                return redirect(url_for('projects'))
 
-        error = 'Login failed ({} {})'.format(response.status_code, response.reason)
+            error = 'Login failed ({} {})'.format(response.status_code, response.reason)
 
     return render_template('login.html', error=error)
 
@@ -100,8 +104,9 @@ def report():
 
         status = request.form.getlist('status')
         priority = request.form.getlist('priority')
-
         epic = request.form.get('epic', 'No Epic')
+        period_start = request.form.get('period-start')
+        period_end = request.form.get('period-end')
 
         search = []
 
@@ -115,6 +120,12 @@ def report():
 
         if epic != 'No Epic':
             search.append('"epic link" = "{}"'.format(epic))
+
+        if period_start:
+            search.append('created >= "{}"'.format(period_start))
+
+        if period_end:
+            search.append('created <= "{}"'.format(period_end))
 
         search = ' and '.join(search)
 
