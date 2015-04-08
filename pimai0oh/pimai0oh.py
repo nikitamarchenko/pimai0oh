@@ -76,7 +76,7 @@ def query(project_key):
     response = requests.get(url, auth=session['jira_cred'])
     prioritys = response.json()
 
-    url = '{}/rest/api/latest/search?jql=type=epic&fields=id&project={}'.format(JIRA_URL, project_key)
+    url = '{}/rest/api/latest/search?jql=issuetype="Epic Link"&fields=id&project={}'.format(JIRA_URL, project_key)
     response = requests.get(url, auth=session['jira_cred'])
     epics = response.json()
 
