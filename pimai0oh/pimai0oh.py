@@ -9,7 +9,7 @@ import requests
 
 app = Flask(__name__)
 app.secret_key = 'pimai0oh+secret_key'
-JIRA_URL = 'https://koinakvioletta.atlassian.net'
+JIRA_URL = 'https://violetakoinak.atlassian.net'
 QA_LEAD = 'QA lead'
 
 
